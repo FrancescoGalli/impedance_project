@@ -1,3 +1,7 @@
+import inspect
+from generate_impedance_data import get_impedance_function
+from generate_impedance_data import add
+
 def generate_circuit():
     return '((R1R2)(R3R4)R5)'
 
@@ -296,6 +300,42 @@ def test_constant_length(parameters, constant_elements):
         'parameters and constant array list size must be the same. Parameters size: '
         + str(len(parameters)) + ', constant array size: ' + str(len(constant_elements)))
 
+
+def test_get_impedance_type(element, impedance, initial_parameters,
+                             constant_elements, parameters):
+    impedance_element, parameters = get_impedance_function(
+        element, impedance, initial_parameters, parameters, constant_elements)
+    assert (inspect.isfunction(impedance_element) and type(parameters)==list), (
+        'type error in output of get_impedance_function(). Impedance function for an '
+        + 'element must return as first argument a function, and as second a lists')
+    
+def test_get_impedance_parameters_type(element, impedance, initial_parameters,
+                             constant_elements, parameters):
+    impedance_element, parameters = get_impedance_function(
+        element, impedance, initial_parameters, parameters, constant_elements)
+    test_parameters_is_list(parameters)
+    test_parameters_type(parameters)
+    test_parameters_list_two_elements(parameters)
+    test_parameters_list_type(parameters)
+    test_parameters_values(parameters)
+    test_parameters_list_value(parameters)
+
+
+def test_get_impedance_number_of_arguments(element, impedance, initial_parameters,
+                             constant_elements, parameters_list):
+    impedance_element, parameters_list = get_impedance_function(
+        element, impedance, initial_parameters, parameters_list, constant_elements)
+    params_function = inspect.signature(impedance_element).parameters
+    assert len(params_function)==len(parameters_list)+1, (
+        'wrong number of parameters \'' + str(len(params_function)) + '\' for element \''
+        + element + ' in output of get_impedance_function() \'. The number of parameters '
+        + 'for an impedance function must be 1 for C and R, 2 for Q')
+
+def test_add(f1, f2):
+    assert inspect.isfunction(add(f1, f2)),('type error in output of add(). It must be'
+                                            + 'a function')
+    
+
 circuit_string=generate_circuit()
 #test_is_string(circuit_string)
 #test_empty_string(circuit_string)
@@ -321,3 +361,19 @@ constant_elements=generate_constant_array()
 #test_constant_list_type(constant_elements)
 #test_constant_list_value(constant_elements)
 #test_constant_length(parameters, constant_elements)
+
+element='R1'
+impedance=[]
+initial_parameters=([100])
+constant_elements=([0])
+parameters=[]
+#test_get_impedance_type(element, impedance, initial_parameters, constant_elements, 
+#                        parameters)
+#test_get_impedance_parameters_type(element, impedance, initial_parameters,
+#                             constant_elements, parameters)
+#test_get_impedance_number_of_arguments(element, impedance, initial_parameters,
+#                             constant_elements, parameters_list)
+
+f1 = lambda x, y: x+y
+f2 = lambda x, y: x*y
+#test_add(f1, f2)
