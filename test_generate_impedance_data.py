@@ -1,6 +1,10 @@
 import inspect
 from generate_impedance_data import get_impedance_function
 from generate_impedance_data import add
+from generate_impedance_data import serialComb
+from generate_impedance_data import reciprocal
+from generate_impedance_data import parallelComb
+from generate_impedance_data import generate_impedance_function
 
 def generate_circuit():
     return '((R1R2)(R3R4)R5)'
@@ -303,6 +307,7 @@ def test_constant_length(parameters, constant_elements):
 
 def test_get_impedance_type(element, impedance, initial_parameters,
                              constant_elements, parameters):
+    """Checks that get_impedance function returns a function and a list"""
     impedance_element, parameters = get_impedance_function(
         element, impedance, initial_parameters, parameters, constant_elements)
     assert (inspect.isfunction(impedance_element) and type(parameters)==list), (
@@ -311,6 +316,7 @@ def test_get_impedance_type(element, impedance, initial_parameters,
     
 def test_get_impedance_parameters_type(element, impedance, initial_parameters,
                              constant_elements, parameters):
+    """Checks that the list type of get_impedance is a valid list of parameters"""
     impedance_element, parameters = get_impedance_function(
         element, impedance, initial_parameters, parameters, constant_elements)
     test_parameters_is_list(parameters)
@@ -323,6 +329,8 @@ def test_get_impedance_parameters_type(element, impedance, initial_parameters,
 
 def test_get_impedance_number_of_arguments(element, impedance, initial_parameters,
                              constant_elements, parameters_list):
+    """Checks that the number of parameters of the function and the number of 
+    parameters in list given by get_impedance have the same length"""
     impedance_element, parameters_list = get_impedance_function(
         element, impedance, initial_parameters, parameters_list, constant_elements)
     params_function = inspect.signature(impedance_element).parameters
@@ -332,9 +340,45 @@ def test_get_impedance_number_of_arguments(element, impedance, initial_parameter
         + 'for an impedance function must be 1 for C and R, 2 for Q')
 
 def test_add(f1, f2):
+    """Checks that the add function returns a function"""
     assert inspect.isfunction(add(f1, f2)),('type error in output of add(). It must be'
                                             + 'a function')
+def test_serialComb(f_list):
+    """Checks that the serialComb function returns a function"""
+    assert inspect.isfunction(serialComb(f_list)), (
+        'type error in output of serialComb(). It must be a function')
     
+def test_reciprocal(f):
+    """Checks that the add function returns a function"""
+    assert inspect.isfunction(reciprocal(f)),('type error in output of reciprical(). ' +
+                                              'It must be a function')
+    
+def test_parallelComb(f_list):
+    """Checks that the serialComb function returns a function"""
+    assert inspect.isfunction(parallelComb(f_list)), (
+        'type error in output of parallelComb(). It must be a function')
+
+def test_generate_impedance_type(circuit_string, initial_parameters, constant_elements):
+    """Checks that generate_impedance function returns a function and a list"""
+    impedance, parameters = generate_impedance_function(circuit_string, 
+                                                        initial_parameters, 
+                                                        constant_elements)
+    assert (inspect.isfunction(impedance) and type(parameters)==list), (
+        'type error in output of generate_impedance_function(). Impedance function '
+        + ' must return as first argument a function, and as second a lists')
+    
+def test_generate_impedance_parameters_type(circuit_string, initial_parameters,
+                                             constant_elements):
+    """Checks that the list type of get_impedance is a valid list of parameters"""    
+    impedance, parameters = generate_impedance_function(circuit_string, 
+                                                             initial_parameters, constant_elements)
+    test_parameters_is_list(parameters)
+    test_parameters_type(parameters)
+    test_parameters_list_two_elements(parameters)
+    test_parameters_list_type(parameters)
+    test_parameters_values(parameters)
+    test_parameters_list_value(parameters)
+
 
 circuit_string=generate_circuit()
 #test_is_string(circuit_string)
@@ -377,3 +421,8 @@ parameters=[]
 f1 = lambda x, y: x+y
 f2 = lambda x, y: x*y
 #test_add(f1, f2)
+
+f_list=([f1, f2])
+#test_serialComb(f_list)
+#test_reciprocal(f1)
+#test_parallelComb(f_list)
